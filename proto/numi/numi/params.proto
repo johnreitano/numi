@@ -1,0 +1,13 @@
+syntax = "proto3";
+package johnreitano.numi.numi;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/johnreitano/numi/x/numi/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+  
+  string identityVerifiers = 1 [(gogoproto.moretags) = "yaml:\"identity_verifiers\""];
+}

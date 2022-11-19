@@ -1,8 +1,10 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
 
+import JohnreitanoNumiNumi from './johnreitano.numi.numi'
 
 
 export default { 
+  JohnreitanoNumiNumi: load(JohnreitanoNumiNumi, 'johnreitano.numi.numi'),
   
 }
 

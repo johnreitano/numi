@@ -1,0 +1,14 @@
+syntax = "proto3";
+package johnreitano.numi.numi;
+
+import "gogoproto/gogo.proto";
+import "numi/numi/params.proto";
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "github.com/johnreitano/numi/x/numi/types";
+
+// GenesisState defines the numi module's genesis state.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+  // this line is used by starport scaffolding # genesis/proto/state
+}
