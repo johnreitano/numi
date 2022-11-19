@@ -1,12 +1,16 @@
 version: 1
 accounts:
   - name: alice
-    coins: ["20000token", "200000000stake"]
+    coins: ["200000000numi"]
   - name: bob
-    coins: ["10000token", "100000000stake"]
+    coins: ["100000000numi"]
+  - name: oliver
+    coins: ["100000000numi"]
+  - name: olivia
+    coins: ["100000000numi"]
 validators:
   - name: alice
-    bonded: "100000000stake"
+    bonded: "100000000numi"
 client:
   openapi:
     path: "docs/static/openapi.yml"
@@ -16,4 +20,24 @@ client:
     path: "vue/src/store"
 faucet:
   name: bob
-  coins: ["5token", "100000stake"]
+  coins: ["100000numi"]
+genesis:
+  app_state:
+    crisis:
+      constant_fee:
+        denom: "numi"
+    gov:
+      deposit_params:
+        min_deposit:
+          - amount: "10000000"
+            denom: "numi"
+    mint:
+      params:
+        mint_denom: "numi"
+    staking:
+      params:
+        bond_denom: "numi"
+    numi:
+      params:
+        identityVerifiers: oliver,olivia
+
