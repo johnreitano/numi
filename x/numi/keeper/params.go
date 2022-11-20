@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,14 +30,12 @@ func (k Keeper) IdentityVerifierAddresses(ctx sdk.Context) []sdk.AccAddress {
 	verifiers := strings.Split(k.IdentityVerifiers(ctx), ",")
 	verifierAddrs := []sdk.AccAddress{}
 	for _, verifier := range verifiers {
-		verifierAddr, err := sdk.AccAddressFromBech32(verifier)
-		if err != nil {
-			k.Logger(ctx).Info(fmt.Sprintf("identity verifier address %s is invalid - skipping: %s", verifier, err))
+		if verifier == "" {
 			continue
 		}
+		verifierAddr := sdk.MustAccAddressFromBech32(verifier)
 		verifierAddrs = append(verifierAddrs, verifierAddr)
 	}
-
 	return verifierAddrs
 }
 

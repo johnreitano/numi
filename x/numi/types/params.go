@@ -2,7 +2,9 @@ package types
 
 import (
 	"fmt"
+	"strings"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"gopkg.in/yaml.v2"
 )
@@ -63,9 +65,14 @@ func validateIdentityVerifiers(v interface{}) error {
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", v)
 	}
-
-	// TODO implement validation
-	_ = identityVerifiers
-
+	for _, verifier := range strings.Split(identityVerifiers, ",") {
+		if verifier == "" {
+			continue
+		}
+		_, err := sdk.AccAddressFromBech32(verifier)
+		if err != nil {
+			return fmt.Errorf("identity verifier address %s is invalid: %w", identityVerifiers, err)
+		}
+	}
 	return nil
 }
