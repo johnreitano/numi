@@ -7,7 +7,24 @@ option go_package = "github.com/johnreitano/numi/x/numi/types";
 
 // Msg defines the Msg service.
 service Msg {
-    // this line is used by starport scaffolding # proto/tx/rpc
+      rpc CreateAndVerifyUser(MsgCreateAndVerifyUser) returns (MsgCreateAndVerifyUserResponse);
+// this line is used by starport scaffolding # proto/tx/rpc
+}
+
+message MsgCreateAndVerifyUser {
+  string creator = 1;
+  string userId = 2;
+  string firstName = 3;
+  string lastName = 4;
+  string countryCode = 5;
+  string subnationalEntity = 6;
+  string city = 7;
+  string bio = 8;
+  string referrer = 9;
+  string accountAddress = 10;
+}
+
+message MsgCreateAndVerifyUserResponse {
 }
 
 // this line is used by starport scaffolding # proto/tx/message

@@ -9,6 +9,8 @@
  * ---------------------------------------------------------------
  */
 
+export type NumiMsgCreateAndVerifyUserResponse = object;
+
 /**
  * Params defines the parameters for the module.
  */
