@@ -2,12 +2,16 @@ version: 1
 accounts:
   - name: alice
     coins: ["200000000numi"]
+    mnemonic: grant desk armor salmon mixture grid amateur auto timber crowd honey elder scissors radar smile mutual cheap stadium diesel sound design weird brisk join
   - name: bob
     coins: ["100000000numi"]
+    mnemonic: inject fold fluid champion doctor figure since waste pig similar nation benefit wrong picture during finger sister guilt chat sight avocado lottery risk citizen
   - name: oliver
     coins: ["100000000numi"]
+    mnemonic: engage unhappy soft business govern transfer spider buzz soda boost robot ugly fix suggest source key sell silk shaft online enforce economy capable news
   - name: olivia
     coins: ["100000000numi"]
+    mnemonic: cannon problem manual elder shop hero enable walnut exclude hour sand connect tower puppy frown mean ten member grace tower phone shop civil february
 validators:
   - name: alice
     bonded: "100000000numi"
@@ -39,5 +43,5 @@ genesis:
         bond_denom: "numi"
     numi:
       params:
-        identityVerifiers: numi1uwn82unswe0dfz6fgkvwzdn4exualah3j53mke,numi1f68dytj3lr4p8gjul3zzev7avmcuq4js23d422
+        identityVerifiers: numi1wdnwe6tt2wz3glwe2d0cjmwk8nzvracwp6p8c7,numi13crpqdukn5l3gr4pzzcjzcl6fpx7rhay8uvy44
 
