@@ -1,0 +1,19 @@
+syntax = "proto3";
+package johnreitano.numi.numi;
+
+option go_package = "github.com/johnreitano/numi/x/numi/types";
+
+message User {
+  string userId = 1; 
+  string firstName = 2; 
+  string lastName = 3; 
+  string countryCode = 4; 
+  string subnationalEntity = 5; 
+  string city = 6; 
+  string bio = 7; 
+  string creator = 8; 
+  string referrer = 9; 
+  string accountAddress = 10; 
+  
+}
+
