@@ -107,6 +107,7 @@ import (
 	numimodule "github.com/johnreitano/numi/x/numi"
 	numimodulekeeper "github.com/johnreitano/numi/x/numi/keeper"
 	numimoduletypes "github.com/johnreitano/numi/x/numi/types"
+
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	appparams "github.com/johnreitano/numi/app/params"
@@ -725,6 +726,10 @@ func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.R
 
 // EndBlocker application updates every end block
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	// TODO: remove this
+	// v := app.NumiKeeper.IdentityVerifierAddresses(ctx)
+	// j, _ := v[0].MarshalYAML()
+	// app.Logger().Error(fmt.Sprintf("end of block %d: first identity verifier: %s\n", req.Height, j))
 	return app.mm.EndBlock(ctx, req)
 }
 

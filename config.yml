@@ -39,5 +39,5 @@ genesis:
         bond_denom: "numi"
     numi:
       params:
-        identityVerifiers: oliver,olivia
+        identityVerifiers: numi1uwn82unswe0dfz6fgkvwzdn4exualah3j53mke,numi1f68dytj3lr4p8gjul3zzev7avmcuq4js23d422
 

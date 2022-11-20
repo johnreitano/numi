@@ -10,9 +10,8 @@ import (
 var _ paramtypes.ParamSet = (*Params)(nil)
 
 var (
-	KeyIdentityVerifiers = []byte("IdentityVerifiers")
-	// TODO: Determine the default value
-	DefaultIdentityVerifiers string = "identity_verifiers"
+	KeyIdentityVerifiers            = []byte("IdentityVerifiers")
+	DefaultIdentityVerifiers string = ""
 )
 
 // ParamKeyTable the param key table for launch module
