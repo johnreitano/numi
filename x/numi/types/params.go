@@ -12,7 +12,7 @@ import (
 var _ paramtypes.ParamSet = (*Params)(nil)
 
 var (
-	KeyIdentityVerifiers            = []byte("IdentityVerifiers")
+	KeyIdentityVerifiers            = []byte("identityVerifiers")
 	DefaultIdentityVerifiers string = ""
 )
 

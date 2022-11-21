@@ -1,9 +1,8 @@
-- find out how to update identityVerifiers via gov proposals
-- deploy to Digital Ocean
-- mint kwan
-- auto-start auction
-- bid on auctions
-- win or lose a bid
-- win an auction (transfer numi and kwan)
+- change unit from numi to unumi
+- deploy testnet to hosting provider
+- add aiblity to mint kwan
+- add aiblity to auto-start auction
+- add aiblity to bid on auctions (win or lose)
+- win an auction (auto-transfer numi and kwan)
 - auto-cancel auction
 

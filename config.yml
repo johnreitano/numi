@@ -35,6 +35,9 @@ genesis:
         min_deposit:
           - amount: "10000000"
             denom: "numi"
+      voting_params:
+          # for testing only, change this to 7 days in prod
+          voting_period: "30s"
     mint:
       params:
         mint_denom: "numi"
@@ -43,5 +46,4 @@ genesis:
         bond_denom: "numi"
     numi:
       params:
-        identityVerifiers: numi1wdnwe6tt2wz3glwe2d0cjmwk8nzvracwp6p8c7,numi13crpqdukn5l3gr4pzzcjzcl6fpx7rhay8uvy44
-
+        identityVerifiers: "numi1wdnwe6tt2wz3glwe2d0cjmwk8nzvracwp6p8c7,numi13crpqdukn5l3gr4pzzcjzcl6fpx7rhay8uvy44"
