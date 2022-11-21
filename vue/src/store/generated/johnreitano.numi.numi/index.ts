@@ -2,9 +2,10 @@ import { Client, registry, MissingWalletError } from 'johnreitano-numi-client-ts
 
 import { Params } from "johnreitano-numi-client-ts/johnreitano.numi.numi/types"
 import { User } from "johnreitano-numi-client-ts/johnreitano.numi.numi/types"
+import { UserAccountAddress } from "johnreitano-numi-client-ts/johnreitano.numi.numi/types"
 
 
-export { Params, User };
+export { Params, User, UserAccountAddress };
 
 function initClient(vuexGetters) {
 	return new Client(vuexGetters['common/env/getEnv'], vuexGetters['common/wallet/signer'])
@@ -38,10 +39,13 @@ const getDefaultState = () => {
 				Params: {},
 				User: {},
 				UserAll: {},
+				UserAccountAddress: {},
+				UserAccountAddressAll: {},
 				
 				_Structure: {
 						Params: getStructure(Params.fromPartial({})),
 						User: getStructure(User.fromPartial({})),
+						UserAccountAddress: getStructure(UserAccountAddress.fromPartial({})),
 						
 		},
 		_Registry: registry,
@@ -87,6 +91,18 @@ export default {
 						(<any> params).query=null
 					}
 			return state.UserAll[JSON.stringify(params)] ?? {}
+		},
+				getUserAccountAddress: (state) => (params = { params: {}}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
+			return state.UserAccountAddress[JSON.stringify(params)] ?? {}
+		},
+				getUserAccountAddressAll: (state) => (params = { params: {}}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
+			return state.UserAccountAddressAll[JSON.stringify(params)] ?? {}
 		},
 				
 		getTypeStructure: (state) => (type) => {
@@ -187,6 +203,54 @@ export default {
 				return getters['getUserAll']( { params: {...key}, query}) ?? {}
 			} catch (e) {
 				throw new Error('QueryClient:QueryUserAll API Node Unavailable. Could not perform query: ' + e.message)
+				
+			}
+		},
+		
+		
+		
+		
+		 		
+		
+		
+		async QueryUserAccountAddress({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params, query=null }) {
+			try {
+				const key = params ?? {};
+				const client = initClient(rootGetters);
+				let value= (await client.JohnreitanoNumiNumi.query.queryUserAccountAddress( key.accountAddress)).data
+				
+					
+				commit('QUERY', { query: 'UserAccountAddress', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryUserAccountAddress', payload: { options: { all }, params: {...key},query }})
+				return getters['getUserAccountAddress']( { params: {...key}, query}) ?? {}
+			} catch (e) {
+				throw new Error('QueryClient:QueryUserAccountAddress API Node Unavailable. Could not perform query: ' + e.message)
+				
+			}
+		},
+		
+		
+		
+		
+		 		
+		
+		
+		async QueryUserAccountAddressAll({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params, query=null }) {
+			try {
+				const key = params ?? {};
+				const client = initClient(rootGetters);
+				let value= (await client.JohnreitanoNumiNumi.query.queryUserAccountAddressAll(query ?? undefined)).data
+				
+					
+				while (all && (<any> value).pagination && (<any> value).pagination.next_key!=null) {
+					let next_values=(await client.JohnreitanoNumiNumi.query.queryUserAccountAddressAll({...query ?? {}, 'pagination.key':(<any> value).pagination.next_key} as any)).data
+					value = mergeResults(value, next_values);
+				}
+				commit('QUERY', { query: 'UserAccountAddressAll', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryUserAccountAddressAll', payload: { options: { all }, params: {...key},query }})
+				return getters['getUserAccountAddressAll']( { params: {...key}, query}) ?? {}
+			} catch (e) {
+				throw new Error('QueryClient:QueryUserAccountAddressAll API Node Unavailable. Could not perform query: ' + e.message)
 				
 			}
 		},

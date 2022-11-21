@@ -2,20 +2,20 @@
 import _m0 from "protobufjs/minimal";
 import { Params } from "./params";
 import { User } from "./user";
+import { UserAccountAddress } from "./user_account_address";
 
 export const protobufPackage = "johnreitano.numi.numi";
 
 /** GenesisState defines the numi module's genesis state. */
 export interface GenesisState {
-  params:
-    | Params
-    | undefined;
-  /** this line is used by starport scaffolding # genesis/proto/state */
+  params: Params | undefined;
   userList: User[];
+  /** this line is used by starport scaffolding # genesis/proto/state */
+  userAccountAddressList: UserAccountAddress[];
 }
 
 function createBaseGenesisState(): GenesisState {
-  return { params: undefined, userList: [] };
+  return { params: undefined, userList: [], userAccountAddressList: [] };
 }
 
 export const GenesisState = {
@@ -25,6 +25,9 @@ export const GenesisState = {
     }
     for (const v of message.userList) {
       User.encode(v!, writer.uint32(18).fork()).ldelim();
+    }
+    for (const v of message.userAccountAddressList) {
+      UserAccountAddress.encode(v!, writer.uint32(26).fork()).ldelim();
     }
     return writer;
   },
@@ -42,6 +45,9 @@ export const GenesisState = {
         case 2:
           message.userList.push(User.decode(reader, reader.uint32()));
           break;
+        case 3:
+          message.userAccountAddressList.push(UserAccountAddress.decode(reader, reader.uint32()));
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -54,6 +60,9 @@ export const GenesisState = {
     return {
       params: isSet(object.params) ? Params.fromJSON(object.params) : undefined,
       userList: Array.isArray(object?.userList) ? object.userList.map((e: any) => User.fromJSON(e)) : [],
+      userAccountAddressList: Array.isArray(object?.userAccountAddressList)
+        ? object.userAccountAddressList.map((e: any) => UserAccountAddress.fromJSON(e))
+        : [],
     };
   },
 
@@ -65,6 +74,13 @@ export const GenesisState = {
     } else {
       obj.userList = [];
     }
+    if (message.userAccountAddressList) {
+      obj.userAccountAddressList = message.userAccountAddressList.map((e) =>
+        e ? UserAccountAddress.toJSON(e) : undefined
+      );
+    } else {
+      obj.userAccountAddressList = [];
+    }
     return obj;
   },
 
@@ -74,6 +90,7 @@ export const GenesisState = {
       ? Params.fromPartial(object.params)
       : undefined;
     message.userList = object.userList?.map((e) => User.fromPartial(e)) || [];
+    message.userAccountAddressList = object.userAccountAddressList?.map((e) => UserAccountAddress.fromPartial(e)) || [];
     return message;
   },
 };

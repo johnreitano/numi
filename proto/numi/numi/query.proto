@@ -6,6 +6,7 @@ import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "numi/numi/params.proto";
 import "numi/numi/user.proto";
+import "numi/numi/user_account_address.proto";
 // this line is used by starport scaffolding # 1
 
 option go_package = "github.com/johnreitano/numi/x/numi/types";
@@ -24,6 +25,16 @@ service Query {
 	// Queries a list of User items.
 	rpc UserAll(QueryAllUserRequest) returns (QueryAllUserResponse) {
 		option (google.api.http).get = "/johnreitano/numi/numi/user";
+	}
+
+// Queries a UserAccountAddress by index.
+	rpc UserAccountAddress(QueryGetUserAccountAddressRequest) returns (QueryGetUserAccountAddressResponse) {
+		option (google.api.http).get = "/johnreitano/numi/numi/user_account_address/{accountAddress}";
+	}
+
+	// Queries a list of UserAccountAddress items.
+	rpc UserAccountAddressAll(QueryAllUserAccountAddressRequest) returns (QueryAllUserAccountAddressResponse) {
+		option (google.api.http).get = "/johnreitano/numi/numi/user_account_address";
 	}
 
 // this line is used by starport scaffolding # 2
@@ -53,6 +64,24 @@ message QueryAllUserRequest {
 
 message QueryAllUserResponse {
 	repeated User user = 1 [(gogoproto.nullable) = false];
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetUserAccountAddressRequest {
+	  string accountAddress = 1;
+
+}
+
+message QueryGetUserAccountAddressResponse {
+	UserAccountAddress userAccountAddress = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryAllUserAccountAddressRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllUserAccountAddressResponse {
+	repeated UserAccountAddress userAccountAddress = 1 [(gogoproto.nullable) = false];
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 

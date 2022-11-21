@@ -3,6 +3,7 @@ import _m0 from "protobufjs/minimal";
 import { PageRequest, PageResponse } from "../../cosmos/base/query/v1beta1/pagination";
 import { Params } from "./params";
 import { User } from "./user";
+import { UserAccountAddress } from "./user_account_address";
 
 export const protobufPackage = "johnreitano.numi.numi";
 
@@ -30,6 +31,23 @@ export interface QueryAllUserRequest {
 
 export interface QueryAllUserResponse {
   user: User[];
+  pagination: PageResponse | undefined;
+}
+
+export interface QueryGetUserAccountAddressRequest {
+  accountAddress: string;
+}
+
+export interface QueryGetUserAccountAddressResponse {
+  userAccountAddress: UserAccountAddress | undefined;
+}
+
+export interface QueryAllUserAccountAddressRequest {
+  pagination: PageRequest | undefined;
+}
+
+export interface QueryAllUserAccountAddressResponse {
+  userAccountAddress: UserAccountAddress[];
   pagination: PageResponse | undefined;
 }
 
@@ -330,6 +348,233 @@ export const QueryAllUserResponse = {
   },
 };
 
+function createBaseQueryGetUserAccountAddressRequest(): QueryGetUserAccountAddressRequest {
+  return { accountAddress: "" };
+}
+
+export const QueryGetUserAccountAddressRequest = {
+  encode(message: QueryGetUserAccountAddressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.accountAddress !== "") {
+      writer.uint32(10).string(message.accountAddress);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): QueryGetUserAccountAddressRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryGetUserAccountAddressRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.accountAddress = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryGetUserAccountAddressRequest {
+    return { accountAddress: isSet(object.accountAddress) ? String(object.accountAddress) : "" };
+  },
+
+  toJSON(message: QueryGetUserAccountAddressRequest): unknown {
+    const obj: any = {};
+    message.accountAddress !== undefined && (obj.accountAddress = message.accountAddress);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<QueryGetUserAccountAddressRequest>, I>>(
+    object: I,
+  ): QueryGetUserAccountAddressRequest {
+    const message = createBaseQueryGetUserAccountAddressRequest();
+    message.accountAddress = object.accountAddress ?? "";
+    return message;
+  },
+};
+
+function createBaseQueryGetUserAccountAddressResponse(): QueryGetUserAccountAddressResponse {
+  return { userAccountAddress: undefined };
+}
+
+export const QueryGetUserAccountAddressResponse = {
+  encode(message: QueryGetUserAccountAddressResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.userAccountAddress !== undefined) {
+      UserAccountAddress.encode(message.userAccountAddress, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): QueryGetUserAccountAddressResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryGetUserAccountAddressResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.userAccountAddress = UserAccountAddress.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryGetUserAccountAddressResponse {
+    return {
+      userAccountAddress: isSet(object.userAccountAddress)
+        ? UserAccountAddress.fromJSON(object.userAccountAddress)
+        : undefined,
+    };
+  },
+
+  toJSON(message: QueryGetUserAccountAddressResponse): unknown {
+    const obj: any = {};
+    message.userAccountAddress !== undefined && (obj.userAccountAddress = message.userAccountAddress
+      ? UserAccountAddress.toJSON(message.userAccountAddress)
+      : undefined);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<QueryGetUserAccountAddressResponse>, I>>(
+    object: I,
+  ): QueryGetUserAccountAddressResponse {
+    const message = createBaseQueryGetUserAccountAddressResponse();
+    message.userAccountAddress = (object.userAccountAddress !== undefined && object.userAccountAddress !== null)
+      ? UserAccountAddress.fromPartial(object.userAccountAddress)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseQueryAllUserAccountAddressRequest(): QueryAllUserAccountAddressRequest {
+  return { pagination: undefined };
+}
+
+export const QueryAllUserAccountAddressRequest = {
+  encode(message: QueryAllUserAccountAddressRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.pagination !== undefined) {
+      PageRequest.encode(message.pagination, writer.uint32(10).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): QueryAllUserAccountAddressRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryAllUserAccountAddressRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.pagination = PageRequest.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryAllUserAccountAddressRequest {
+    return { pagination: isSet(object.pagination) ? PageRequest.fromJSON(object.pagination) : undefined };
+  },
+
+  toJSON(message: QueryAllUserAccountAddressRequest): unknown {
+    const obj: any = {};
+    message.pagination !== undefined
+      && (obj.pagination = message.pagination ? PageRequest.toJSON(message.pagination) : undefined);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<QueryAllUserAccountAddressRequest>, I>>(
+    object: I,
+  ): QueryAllUserAccountAddressRequest {
+    const message = createBaseQueryAllUserAccountAddressRequest();
+    message.pagination = (object.pagination !== undefined && object.pagination !== null)
+      ? PageRequest.fromPartial(object.pagination)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseQueryAllUserAccountAddressResponse(): QueryAllUserAccountAddressResponse {
+  return { userAccountAddress: [], pagination: undefined };
+}
+
+export const QueryAllUserAccountAddressResponse = {
+  encode(message: QueryAllUserAccountAddressResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    for (const v of message.userAccountAddress) {
+      UserAccountAddress.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    if (message.pagination !== undefined) {
+      PageResponse.encode(message.pagination, writer.uint32(18).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): QueryAllUserAccountAddressResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseQueryAllUserAccountAddressResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.userAccountAddress.push(UserAccountAddress.decode(reader, reader.uint32()));
+          break;
+        case 2:
+          message.pagination = PageResponse.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): QueryAllUserAccountAddressResponse {
+    return {
+      userAccountAddress: Array.isArray(object?.userAccountAddress)
+        ? object.userAccountAddress.map((e: any) => UserAccountAddress.fromJSON(e))
+        : [],
+      pagination: isSet(object.pagination) ? PageResponse.fromJSON(object.pagination) : undefined,
+    };
+  },
+
+  toJSON(message: QueryAllUserAccountAddressResponse): unknown {
+    const obj: any = {};
+    if (message.userAccountAddress) {
+      obj.userAccountAddress = message.userAccountAddress.map((e) => e ? UserAccountAddress.toJSON(e) : undefined);
+    } else {
+      obj.userAccountAddress = [];
+    }
+    message.pagination !== undefined
+      && (obj.pagination = message.pagination ? PageResponse.toJSON(message.pagination) : undefined);
+    return obj;
+  },
+
+  fromPartial<I extends Exact<DeepPartial<QueryAllUserAccountAddressResponse>, I>>(
+    object: I,
+  ): QueryAllUserAccountAddressResponse {
+    const message = createBaseQueryAllUserAccountAddressResponse();
+    message.userAccountAddress = object.userAccountAddress?.map((e) => UserAccountAddress.fromPartial(e)) || [];
+    message.pagination = (object.pagination !== undefined && object.pagination !== null)
+      ? PageResponse.fromPartial(object.pagination)
+      : undefined;
+    return message;
+  },
+};
+
 /** Query defines the gRPC querier service. */
 export interface Query {
   /** Parameters queries the parameters of the module. */
@@ -338,6 +583,10 @@ export interface Query {
   User(request: QueryGetUserRequest): Promise<QueryGetUserResponse>;
   /** Queries a list of User items. */
   UserAll(request: QueryAllUserRequest): Promise<QueryAllUserResponse>;
+  /** Queries a UserAccountAddress by index. */
+  UserAccountAddress(request: QueryGetUserAccountAddressRequest): Promise<QueryGetUserAccountAddressResponse>;
+  /** Queries a list of UserAccountAddress items. */
+  UserAccountAddressAll(request: QueryAllUserAccountAddressRequest): Promise<QueryAllUserAccountAddressResponse>;
 }
 
 export class QueryClientImpl implements Query {
@@ -347,6 +596,8 @@ export class QueryClientImpl implements Query {
     this.Params = this.Params.bind(this);
     this.User = this.User.bind(this);
     this.UserAll = this.UserAll.bind(this);
+    this.UserAccountAddress = this.UserAccountAddress.bind(this);
+    this.UserAccountAddressAll = this.UserAccountAddressAll.bind(this);
   }
   Params(request: QueryParamsRequest): Promise<QueryParamsResponse> {
     const data = QueryParamsRequest.encode(request).finish();
@@ -364,6 +615,18 @@ export class QueryClientImpl implements Query {
     const data = QueryAllUserRequest.encode(request).finish();
     const promise = this.rpc.request("johnreitano.numi.numi.Query", "UserAll", data);
     return promise.then((data) => QueryAllUserResponse.decode(new _m0.Reader(data)));
+  }
+
+  UserAccountAddress(request: QueryGetUserAccountAddressRequest): Promise<QueryGetUserAccountAddressResponse> {
+    const data = QueryGetUserAccountAddressRequest.encode(request).finish();
+    const promise = this.rpc.request("johnreitano.numi.numi.Query", "UserAccountAddress", data);
+    return promise.then((data) => QueryGetUserAccountAddressResponse.decode(new _m0.Reader(data)));
+  }
+
+  UserAccountAddressAll(request: QueryAllUserAccountAddressRequest): Promise<QueryAllUserAccountAddressResponse> {
+    const data = QueryAllUserAccountAddressRequest.encode(request).finish();
+    const promise = this.rpc.request("johnreitano.numi.numi.Query", "UserAccountAddressAll", data);
+    return promise.then((data) => QueryAllUserAccountAddressResponse.decode(new _m0.Reader(data)));
   }
 }
 

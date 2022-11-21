@@ -30,6 +30,14 @@ func TestGenesisState_Validate(t *testing.T) {
 						UserId: "1",
 					},
 				},
+				UserAccountAddressList: []types.UserAccountAddress{
+					{
+						AccountAddress: "0",
+					},
+					{
+						AccountAddress: "1",
+					},
+				},
 				// this line is used by starport scaffolding # types/genesis/validField
 			},
 			valid: true,
@@ -43,6 +51,20 @@ func TestGenesisState_Validate(t *testing.T) {
 					},
 					{
 						UserId: "0",
+					},
+				},
+			},
+			valid: false,
+		},
+		{
+			desc: "duplicated userAccountAddress",
+			genState: &types.GenesisState{
+				UserAccountAddressList: []types.UserAccountAddress{
+					{
+						AccountAddress: "0",
+					},
+					{
+						AccountAddress: "0",
 					},
 				},
 			},

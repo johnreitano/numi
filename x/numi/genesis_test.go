@@ -22,6 +22,14 @@ func TestGenesis(t *testing.T) {
 				UserId: "1",
 			},
 		},
+		UserAccountAddressList: []types.UserAccountAddress{
+			{
+				AccountAddress: "0",
+			},
+			{
+				AccountAddress: "1",
+			},
+		},
 		// this line is used by starport scaffolding # genesis/test/state
 	}
 
@@ -34,5 +42,6 @@ func TestGenesis(t *testing.T) {
 	nullify.Fill(got)
 
 	require.ElementsMatch(t, genesisState.UserList, got.UserList)
+	require.ElementsMatch(t, genesisState.UserAccountAddressList, got.UserAccountAddressList)
 	// this line is used by starport scaffolding # genesis/test/assert
 }

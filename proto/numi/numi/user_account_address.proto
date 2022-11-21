@@ -1,0 +1,11 @@
+syntax = "proto3";
+package johnreitano.numi.numi;
+
+option go_package = "github.com/johnreitano/numi/x/numi/types";
+
+message UserAccountAddress {
+  string accountAddress = 1; 
+  string userId = 2; 
+  
+}
+

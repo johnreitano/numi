@@ -18,6 +18,21 @@ export interface NumiParams {
   identityVerifiers?: string;
 }
 
+export interface NumiQueryAllUserAccountAddressResponse {
+  userAccountAddress?: NumiUserAccountAddress[];
+
+  /**
+   * PageResponse is to be embedded in gRPC response messages where the
+   * corresponding request message has used PageRequest.
+   *
+   *  message SomeResponse {
+   *          repeated Bar results = 1;
+   *          PageResponse page = 2;
+   *  }
+   */
+  pagination?: V1Beta1PageResponse;
+}
+
 export interface NumiQueryAllUserResponse {
   user?: NumiUser[];
 
@@ -31,6 +46,10 @@ export interface NumiQueryAllUserResponse {
    *  }
    */
   pagination?: V1Beta1PageResponse;
+}
+
+export interface NumiQueryGetUserAccountAddressResponse {
+  userAccountAddress?: NumiUserAccountAddress;
 }
 
 export interface NumiQueryGetUserResponse {
@@ -56,6 +75,11 @@ export interface NumiUser {
   creator?: string;
   referrer?: string;
   accountAddress?: string;
+}
+
+export interface NumiUserAccountAddress {
+  accountAddress?: string;
+  userId?: string;
 }
 
 export interface ProtobufAny {
@@ -319,6 +343,48 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   queryUser = (userId: string, params: RequestParams = {}) =>
     this.request<NumiQueryGetUserResponse, RpcStatus>({
       path: `/johnreitano/numi/numi/user/${userId}`,
+      method: "GET",
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * No description
+   *
+   * @tags Query
+   * @name QueryUserAccountAddressAll
+   * @summary Queries a list of UserAccountAddress items.
+   * @request GET:/johnreitano/numi/numi/user_account_address
+   */
+  queryUserAccountAddressAll = (
+    query?: {
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.count_total"?: boolean;
+      "pagination.reverse"?: boolean;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<NumiQueryAllUserAccountAddressResponse, RpcStatus>({
+      path: `/johnreitano/numi/numi/user_account_address`,
+      method: "GET",
+      query: query,
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * No description
+   *
+   * @tags Query
+   * @name QueryUserAccountAddress
+   * @summary Queries a UserAccountAddress by index.
+   * @request GET:/johnreitano/numi/numi/user_account_address/{accountAddress}
+   */
+  queryUserAccountAddress = (accountAddress: string, params: RequestParams = {}) =>
+    this.request<NumiQueryGetUserAccountAddressResponse, RpcStatus>({
+      path: `/johnreitano/numi/numi/user_account_address/${accountAddress}`,
       method: "GET",
       format: "json",
       ...params,
