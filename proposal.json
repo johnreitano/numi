@@ -1,0 +1,12 @@
+{
+  "title": "Add ACME Corp as a new identity verifier",
+  "description": "If approved, this parameter-change governance proposal will add ACME Corp's address to the list of identity verifiers",
+  "changes": [
+    {
+      "subspace": "numi",
+      "key": "identityVerifiers",
+      "value": "numi1wdnwe6tt2wz3glwe2d0cjmwk8nzvracwp6p8c7,numi13crpqdukn5l3gr4pzzcjzcl6fpx7rhay8uvy44,numi1tsacr4aqrrerakdlcmlzl7daplle54fj874w2s"
+    }
+  ],
+  "deposit": "10000numi"
+}
