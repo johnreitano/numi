@@ -9,7 +9,6 @@ import (
 
 func (k msgServer) CreateAndVerifyUser(goCtx context.Context, msg *types.MsgCreateAndVerifyUser) (*types.MsgCreateAndVerifyUserResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	_ = ctx
 
 	user := types.User{
 		Creator:           msg.Creator,
@@ -23,7 +22,6 @@ func (k msgServer) CreateAndVerifyUser(goCtx context.Context, msg *types.MsgCrea
 		Referrer:          msg.Referrer,
 		AccountAddress:    msg.AccountAddress,
 	}
-
 	err := types.ValidateUserBasic(&user)
 	if err != nil {
 		return nil, err
@@ -37,20 +35,32 @@ func (k msgServer) CreateAndVerifyUser(goCtx context.Context, msg *types.MsgCrea
 		return nil, types.ErrUserIdAlreadyExists
 	}
 
+	if _, found := k.GetUserAccountAddress(ctx, msg.AccountAddress); found {
+		return nil, types.ErrAccountAddressAlreadyExists
+	}
+
 	k.Keeper.SetUser(ctx, user)
+	k.Keeper.SetUserAccountAddress(ctx, types.UserAccountAddress{
+		AccountAddress: msg.AccountAddress,
+		UserId:         msg.UserId,
+	})
 
-	// TODO: add to upcoming auctions
+	// TODO: add msg to upcoming auctions
 
-	// TODO: emit an event
-	// ctx.EventManager().EmitEvent(
-	// 	sdk.NewEvent(types.UserCreatedEventType,
-	// 		sdk.NewAttribute(types.UserCreatedEventUserId, msg.UserId),
-	// 		sdk.NewAttribute(types.UserCreatedEventFirstName, msg.FirstName),
-	// 		sdk.NewAttribute(types.UserCreatedEventLastName, msg.LastName),
-	// 		sdk.NewAttribute(types.UserCreatedEventReferrer, msg.Referrer),
-	// 		sdk.NewAttribute(types.UserCreatedEventCreator, msg.Creator),
-	// 	),
-	// )}
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(types.UserCreatedAndVerifiedEventType,
+			sdk.NewAttribute(types.UserCreatedAndVerifiedEventUserId, msg.UserId),
+			sdk.NewAttribute(types.UserCreatedAndVerifiedEventFirstName, msg.FirstName),
+			sdk.NewAttribute(types.UserCreatedAndVerifiedEventLastName, msg.LastName),
+			sdk.NewAttribute(types.UserCreatedAndVerifiedEventCountryCode, msg.CountryCode),
+			sdk.NewAttribute(types.UserCreatedAndVerifiedEventSubnationalEntity, msg.SubnationalEntity),
+			sdk.NewAttribute(types.UserCreatedAndVerifiedEventCity, msg.City),
+			sdk.NewAttribute(types.UserCreatedAndVerifiedEventBio, msg.Bio),
+			sdk.NewAttribute(types.UserCreatedAndVerifiedEventCreator, msg.Creator),
+			sdk.NewAttribute(types.UserCreatedAndVerifiedEventReferrer, msg.Referrer),
+			sdk.NewAttribute(types.UserCreatedAndVerifiedEventAccountAddress, msg.AccountAddress),
+		),
+	)
 
 	return &types.MsgCreateAndVerifyUserResponse{}, nil
 }

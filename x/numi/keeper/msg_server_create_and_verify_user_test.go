@@ -9,18 +9,11 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/johnreitano/numi/app"
 	keepertest "github.com/johnreitano/numi/testutil/keeper"
+	typestest "github.com/johnreitano/numi/testutil/types"
 	"github.com/johnreitano/numi/x/numi"
 	"github.com/johnreitano/numi/x/numi/keeper"
 	"github.com/johnreitano/numi/x/numi/types"
 	"github.com/stretchr/testify/require"
-)
-
-const (
-	alice  = "numi12utcwzwmrwzsjj362qsht6zapq9cd5q0gh8pgy"
-	bob    = "numi1hq9ujvq7yl2krs54xez67pfhfkpg8nlpqa75u2"
-	carol  = "numi1staes5penzmhsxk3vmh4uwf483yejnvvx2ljwe"
-	oliver = "numi13crpqdukn5l3gr4pzzcjzcl6fpx7rhay8uvy44"
-	olivia = "numi1tsacr4aqrrerakdlcmlzl7daplle54fj874w2s"
 )
 
 func setupMsgServerCreateAndVerifyUser(t testing.TB) (types.MsgServer, keeper.Keeper, context.Context) {
@@ -30,7 +23,7 @@ func setupMsgServerCreateAndVerifyUser(t testing.TB) (types.MsgServer, keeper.Ke
 
 	numi.InitGenesis(ctx, *k, *types.DefaultGenesis())
 
-	verifiers := fmt.Sprintf("%s,%s", oliver, olivia)
+	verifiers := fmt.Sprintf("%s,%s", typestest.Oliver, typestest.Olivia)
 	k.SetParams(ctx, types.NewParams(verifiers))
 
 	return keeper.NewMsgServerImpl(*k), *k, sdk.WrapSDKContext(ctx)
@@ -38,7 +31,7 @@ func setupMsgServerCreateAndVerifyUser(t testing.TB) (types.MsgServer, keeper.Ke
 
 func TestCreateAndVerifyUser_ResponseIsAsExpected(t *testing.T) {
 	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t)
-	createResponse, err := msgServer.CreateAndVerifyUser(context, validMessage())
+	createResponse, err := msgServer.CreateAndVerifyUser(context, typestest.ValidMsgCreateAndVerifyUser())
 	require.Nil(t, err)
 	require.EqualValues(t, types.MsgCreateAndVerifyUserResponse{}, *createResponse)
 }
@@ -46,7 +39,7 @@ func TestCreateAndVerifyUser_ResponseIsAsExpected(t *testing.T) {
 func TestCreateAndVerifyUser_UserIsSaved(t *testing.T) {
 	msgServer, keeper, context := setupMsgServerCreateAndVerifyUser(t)
 
-	message := validMessage()
+	message := typestest.ValidMsgCreateAndVerifyUser()
 	_, err := msgServer.CreateAndVerifyUser(context, message)
 	require.Nil(t, err)
 
@@ -57,20 +50,20 @@ func TestCreateAndVerifyUser_UserIsSaved(t *testing.T) {
 	require.EqualValues(t, actualUser, expectedUser)
 }
 
-func TestCreateAndVerifyUser_FailsIfMsgFieldInvalid(t *testing.T) {
+func TestCreateAndVerifyUser_FailsIfValidateBasicFailsForUser(t *testing.T) {
 	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t)
-
-	message := validMessage()
+	message := typestest.ValidMsgCreateAndVerifyUser()
 	message.FirstName = ""
 	_, err := msgServer.CreateAndVerifyUser(context, message)
-	require.ErrorIs(t, err, types.ErrFirstNameBlank)
+	require.NotNil(t, err)
+
 }
 
 func TestCreateAndVerifyUser_FailsIfCreatorNotIdentityProvider(t *testing.T) {
 	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t)
 
-	message := validMessage()
-	message.Creator = alice
+	message := typestest.ValidMsgCreateAndVerifyUser()
+	message.Creator = typestest.Alice
 	_, err := msgServer.CreateAndVerifyUser(context, message)
 	require.ErrorIs(t, err, types.ErrCreatorNotAuthorizedToVerifyIdentities)
 }
@@ -78,39 +71,51 @@ func TestCreateAndVerifyUser_FailsIfCreatorNotIdentityProvider(t *testing.T) {
 func TestCreateAndVerifyUser_FailsIfUserIdAlreadyInUse(t *testing.T) {
 	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t)
 
-	message := validMessage()
-	message.AccountAddress = bob
+	message := typestest.ValidMsgCreateAndVerifyUser()
 	_, err := msgServer.CreateAndVerifyUser(context, message)
 	require.Nil(t, err)
 
+	message.AccountAddress = typestest.Bob
 	_, err = msgServer.CreateAndVerifyUser(context, message)
 	require.ErrorIs(t, err, types.ErrUserIdAlreadyExists)
 }
 
-// TODO: add test for ErrAccountAddressAlreadyExists
-// func TestCreateAndVerifyUser_FailsIfAccountAddressAlreadyInUse(t *testing.T) {
-// 	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t)
+func TestCreateAndVerifyUser_FailsIfAccountAddressAlreadyInUse(t *testing.T) {
+	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t)
 
-// 	message := validMessage()
-// 	message.UserId = bob
-// 	_, err := msgServer.CreateAndVerifyUser(context, message)
-// 	require.Nil(t, err)
+	message := typestest.ValidMsgCreateAndVerifyUser()
+	_, err := msgServer.CreateAndVerifyUser(context, message)
+	require.Nil(t, err)
 
-// 	_, err = msgServer.CreateAndVerifyUser(context, message)
-// 	require.ErrorIs(t, err, types.ErrAccountAddressAlreadyExists)
-// }
+	newUserId := "74b76d9e-bf21-4b50-93b7-2bdbb9dcf926"
+	require.NotEqual(t, message.UserId, newUserId)
+	message.UserId = newUserId
+	_, err = msgServer.CreateAndVerifyUser(context, message)
+	require.ErrorIs(t, err, types.ErrAccountAddressAlreadyExists)
+}
 
-func validMessage() *types.MsgCreateAndVerifyUser {
-	return &types.MsgCreateAndVerifyUser{
-		Creator:           olivia,
-		UserId:            "1bc3e020-2b02-40a7-abd8-eadc9b4250c5",
-		FirstName:         "John",
-		LastName:          "Doe",
-		CountryCode:       "USA",
-		SubnationalEntity: "California",
-		City:              "San Diego",
-		Bio:               "a serious man",
-		Referrer:          alice,
-		AccountAddress:    bob,
-	}
+func TestCreate1GameEmitted(t *testing.T) {
+	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t)
+	ctx := sdk.UnwrapSDKContext(context)
+	message := typestest.ValidMsgCreateAndVerifyUser()
+	_, err := msgServer.CreateAndVerifyUser(context, message)
+	require.Nil(t, err)
+	events := sdk.StringifyEvents(ctx.EventManager().ABCIEvents())
+	require.Len(t, events, 1)
+	event := events[0]
+	require.EqualValues(t, sdk.StringEvent{
+		Type: "user-created-and-verified",
+		Attributes: []sdk.Attribute{
+			{Key: "user-id", Value: message.UserId},
+			{Key: "first-name", Value: message.FirstName},
+			{Key: "last-name", Value: message.LastName},
+			{Key: "country-code", Value: message.CountryCode},
+			{Key: "subnational-entity", Value: message.SubnationalEntity},
+			{Key: "city", Value: message.City},
+			{Key: "bio", Value: message.Bio},
+			{Key: "creator", Value: message.Creator},
+			{Key: "referrer", Value: message.Referrer},
+			{Key: "account-address", Value: message.AccountAddress},
+		},
+	}, event)
 }
