@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/johnreitano/numi/app"
 	testkeeper "github.com/johnreitano/numi/testutil/keeper"
 	"github.com/johnreitano/numi/x/numi/types"
@@ -21,21 +20,8 @@ func TestGetParams(t *testing.T) {
 	require.EqualValues(t, params.IdentityVerifiers, k.IdentityVerifiers(ctx))
 }
 
-func setSDKPrefixes() {
-	accountPubKeyPrefix := app.AccountAddressPrefix + "pub"
-	validatorAddressPrefix := app.AccountAddressPrefix + "valoper"
-	validatorPubKeyPrefix := app.AccountAddressPrefix + "valoperpub"
-	consNodeAddressPrefix := app.AccountAddressPrefix + "valcons"
-	consNodePubKeyPrefix := app.AccountAddressPrefix + "valconspub"
-
-	config := sdk.GetConfig()
-	config.SetBech32PrefixForAccount(app.AccountAddressPrefix, accountPubKeyPrefix)
-	config.SetBech32PrefixForValidator(validatorAddressPrefix, validatorPubKeyPrefix)
-	config.SetBech32PrefixForConsensusNode(consNodeAddressPrefix, consNodePubKeyPrefix)
-}
-
 func TestIdentityVerifierAddresses(t *testing.T) {
-	setSDKPrefixes()
+	app.SetAddressPrefixesInSDKConfig()
 
 	k, ctx := testkeeper.NumiKeeper(t)
 	verifier0 := "numi17jmfn9c6x7k0uem9hndf9808u0ufx24zjlqyke"
@@ -50,7 +36,7 @@ func TestIdentityVerifierAddresses(t *testing.T) {
 }
 
 func TestIsIdentityVerifier(t *testing.T) {
-	setSDKPrefixes()
+	app.SetAddressPrefixesInSDKConfig()
 
 	k, ctx := testkeeper.NumiKeeper(t)
 	verifier0 := "numi17jmfn9c6x7k0uem9hndf9808u0ufx24zjlqyke"
@@ -58,13 +44,10 @@ func TestIsIdentityVerifier(t *testing.T) {
 	verifiers := fmt.Sprintf("%s,%s", verifier0, verifier1)
 	k.SetParams(ctx, types.NewParams(verifiers))
 
-	addr0 := sdk.MustAccAddressFromBech32(verifier0)
-	require.True(t, k.IsIdentityVerifier(ctx, addr0))
+	require.True(t, k.IsIdentityVerifier(ctx, verifier0))
 
-	addr1 := sdk.MustAccAddressFromBech32(verifier1)
-	require.True(t, k.IsIdentityVerifier(ctx, addr1))
+	require.True(t, k.IsIdentityVerifier(ctx, verifier1))
 
 	verifier2 := "numi1hlmu6pw6ff9tqx6zplzrhsszv6xh7c8stj3w6k"
-	addr2 := sdk.MustAccAddressFromBech32(verifier2)
-	require.False(t, k.IsIdentityVerifier(ctx, addr2))
+	require.False(t, k.IsIdentityVerifier(ctx, verifier2))
 }

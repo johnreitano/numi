@@ -40,9 +40,10 @@ func (k Keeper) IdentityVerifierAddresses(ctx sdk.Context) []sdk.AccAddress {
 }
 
 // IsIdentityVerifier returns true iff the subject address matches on of the items in the IdentityVerifiers param
-func (k Keeper) IsIdentityVerifier(ctx sdk.Context, subject sdk.AccAddress) bool {
+func (k Keeper) IsIdentityVerifier(ctx sdk.Context, bech32Address string) bool {
+	address := sdk.MustAccAddressFromBech32(bech32Address)
 	for _, verifierAddr := range k.IdentityVerifierAddresses(ctx) {
-		if verifierAddr.Equals(subject) {
+		if verifierAddr.Equals(address) {
 			return true
 		}
 	}

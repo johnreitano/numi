@@ -2,7 +2,6 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 const TypeMsgCreateAndVerifyUser = "create_and_verify_user"
@@ -46,9 +45,5 @@ func (msg *MsgCreateAndVerifyUser) GetSignBytes() []byte {
 }
 
 func (msg *MsgCreateAndVerifyUser) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Creator)
-	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
-	}
-	return nil
+	return ValidateUserBasic(msg)
 }
