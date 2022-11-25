@@ -14,15 +14,11 @@ SSH_PRIVATE_KEY_PATH="~/.ssh/id_rsa"
 # build m1 mac client
 make build-mac
 
-# build linux client
-make build-linux-with-checksum
-
 # get validator ip addresses
 VALIDATOR_IPS=($(terraform -chdir=deploy output -json validator_ips | jq -r 'join(" ")'))
 
 # generate config dirs
 ${SCRIPT_DIR}/generate-config-dirs.sh ${VALIDATOR_IPS[*]}
-
 
 for i in ${!VALIDATOR_IPS[@]}; do
   echo configuring server ${i} with IP ${VALIDATOR_IPS[${i}]}
@@ -33,5 +29,8 @@ for i in ${!VALIDATOR_IPS[@]}; do
   scp -i ${SSH_PRIVATE_KEY_PATH} -pr deploy/upload.tgz ubuntu@${VALIDATOR_IPS[${i}]}:
   
   # extract files and run configuration script
-  ssh -i ${SSH_PRIVATE_KEY_PATH} ubuntu@${VALIDATOR_IPS[${i}]} "rm -rf upload && tar xzf upload.tgz && upload/configure-server.sh ${TLS_CERTIFICATE_EMAIL} ${DOMAIN_PREFIX} ${DNS_ZONE_NAME}"
+  RPC_HOST=${DOMAIN_PREFIX}validator-${i}-rpc.${DNS_ZONE_NAME}
+  API_HOST=${DOMAIN_PREFIX}validator-${i}-api.${DNS_ZONE_NAME}
+
+  ssh -i ${SSH_PRIVATE_KEY_PATH} ubuntu@${VALIDATOR_IPS[${i}]} "rm -rf upload && tar xzf upload.tgz && upload/configure-server.sh ${TLS_CERTIFICATE_EMAIL} ${RPC_HOST} ${API_HOST}"
 done

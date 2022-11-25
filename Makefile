@@ -6,7 +6,7 @@ build-mac:
 	fi
 
 build-linux:
-	GOOS=linux GOARCH=amd64 go build -o ./deploy/upload/numid ./cmd/numid/main.go
+	GOOS=linux GOARCH=amd64 go build -o ./deploy/numid ./cmd/numid/main.go
 
 do-checksum:
 	cd deploy/upload && sha256sum numid > numid-checksum

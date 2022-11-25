@@ -4,23 +4,35 @@ set -e
 set -x
 
 TLS_CERTIFICATE_EMAIL=$1
-DOMAIN_PREFIX=$2
-DNS_ZONE_NAME=$3
+RPC_HOST=$2
+API_HOST=$3
 
-rm -rf upload/
-tar xzf upload.tgz
-
+# stop service
 sudo systemctl stop numi.service || :
 
-sudo cp upload/numid /usr/local/bin/
+# download latest numid from github
+rm -rf numid-download
+mkdir numid-download
+cd numid-download
+DOWNLOAD_URL=$(curl -s https://api.github.com/repos/johnreitano/numi/releases/latest | jq -r '.assets[] | select(.name|match("linux_amd64.tar.gz$")) | .browser_download_url')
+wget -q ${DOWNLOAD_URL}
+tar xzf *linux_amd64.tar.gz
+sudo mv numid /usr/local/bin
+cd ..
+
+# move uploaded home dir into position
+rm -rf upload/
+tar xzf upload.tgz
 cp -r upload/numi-home /home/ubuntu/.numi
 
-upload/install-generic-cert.sh ${TLS_CERTIFICATE_EMAIL} ${DOMAIN_PREFIX}validator-${i}-rpc.${DNS_ZONE_NAME}
-upload/install-nginx-cert.sh ${TLS_CERTIFICATE_EMAIL} ${DOMAIN_PREFIX}validator-${i}-api.${DNS_ZONE_NAME} 1317
-
+# configure additional items
+upload/install-generic-cert.sh ${TLS_CERTIFICATE_EMAIL} ${RPC_HOST}
+upload/install-nginx-cert.sh ${TLS_CERTIFICATE_EMAIL} ${API_HOST} 1317
 sudo cp upload/numi.service /etc/systemd/system/numi.service
 sudo chmod 664 /etc/systemd/system/numi.service
 sudo systemctl daemon-reload
+
+# start numid service
 sudo systemctl start numi.service
 sleep 1
 sudo systemctl status -l numi.service --no-pager

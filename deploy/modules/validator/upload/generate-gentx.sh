@@ -19,4 +19,4 @@ fi
 yes | ~/upload/numid keys delete ${MONIKER}-key --keyring-backend test 2>/dev/null || :
 echo $MNEMONIC | ~/upload/numid keys add ${MONIKER}-key --keyring-backend test --recover
 ~/upload/numid add-genesis-account $(~/upload/numid keys show ${MONIKER}-key -a --keyring-backend test) 100000000000stake || :
-~/upload/numid gentx ${MONIKER}-key 100000000stake --chain-id numi-test-1 --moniker=${MONIKER} --keyring-backend test
+~/upload/numid gentx ${MONIKER}-key 100000000stake --chain-id numi-testnet-1 --moniker=${MONIKER} --keyring-backend test

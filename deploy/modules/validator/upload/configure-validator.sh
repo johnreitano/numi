@@ -28,7 +28,7 @@ for i in $(seq 0 $N_MINUS_1); do
 done
 
 rm -rf ~/.numi
-~/upload/numid init $MONIKER --chain-id numi-test-1
+~/upload/numid init $MONIKER --chain-id numi-testnet-1
 cp upload/node_key_validator_${NODE_INDEX}.json ~/.numi/config/node_key.json
 
 cat >/tmp/numi.service <<-EOF

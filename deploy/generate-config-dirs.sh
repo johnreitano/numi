@@ -18,7 +18,7 @@ for i in ${!VALIDATOR_IPS[@]}; do
     MONIKER=validator${i}
     HOME_DIR=deploy/node-config/validator${i}
     mkdir deploy/node-config/${MONIKER}
-    echo ${VALIDATOR_MNEMONICS[$i]} | numid init --chain-id numi --recover --home ${HOME_DIR} ${MONIKER}
+    echo ${VALIDATOR_MNEMONICS[$i]} | numid init --chain-id numi-testnet-1 --recover --home ${HOME_DIR} ${MONIKER}
 done
 
 # set persistent peers in variable
@@ -51,7 +51,7 @@ for i in ${!VALIDATOR_IPS[@]}; do
   ADDR=$(numid keys show ${MONIKER}-key -a --keyring-backend test --home ${HOME_DIR})
   echo ${MONIKER}: $ADDR
   numid add-genesis-account --keyring-backend test --home ${HOME_DIR} ${ADDR} 2000000000unumi || :
-  numid gentx ${MONIKER}-key 1000000000unumi --chain-id numi-test-1 --moniker=${MONIKER} --keyring-backend test --home ${HOME_DIR}
+  numid gentx ${MONIKER}-key 1000000000unumi --chain-id numi-testnet-1 --moniker=${MONIKER} --keyring-backend test --home ${HOME_DIR}
 
   if [[ ${i} != "0" ]]; then
     cp ${HOME_DIR}/config/gentx/* deploy/node-config/validator0/config/gentx/    
