@@ -37,7 +37,7 @@ genesis:
             denom: "numi"
       voting_params:
           # for testing only, change this to 7 days in prod
-          voting_period: "30s"
+          voting_period: "60s"
     mint:
       params:
         mint_denom: "numi"
