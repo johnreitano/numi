@@ -4,11 +4,33 @@ set -e
 set -x
 
 TLS_CERTIFICATE_EMAIL=$1
-RPC_HOST=$2
-API_HOST=$3
+RPC_DOMAIN=$2
+API_DOMAIN=$3
+API_PORT=$4
 
 # stop service
 sudo systemctl stop numi.service || :
+sleep 1
+
+# update packages
+sudo apt update -y
+sudo snap install core
+sudo snap refresh core
+if [[ -z "$(which jq)" ]]; then
+    sudo apt install -y jq
+fi
+if [[ -z "$(which dasel)" ]]; then
+    sudo wget -qO /usr/local/bin/dasel https://github.com/TomWright/dasel/releases/latest/download/dasel_linux_amd64
+    sudo chmod a+x /usr/local/bin/dasel
+fi
+sudo apt remove -y certbot
+if [[ -z "$(which certbot)" ]]; then
+    sudo snap install --classic certbot
+    sudo ln -s /snap/bin/certbot /usr/bin/certbot
+fi
+
+# set maximum number of open files to 4096 -- needed by numid
+ulimit -n 4096 
 
 # download latest numid from github
 rm -rf numid-download
@@ -20,19 +42,19 @@ tar xzf *linux_amd64.tar.gz
 sudo mv numid /usr/local/bin
 cd ..
 
-# move uploaded home dir into position
+# move uploaded home dir into default location
 rm -rf upload/
 tar xzf upload.tgz
-cp -r upload/numi-home /home/ubuntu/.numi
+rm -rf .numi
+cp -r upload/numi-home .numi
 
-# configure additional items
-upload/install-generic-cert.sh ${TLS_CERTIFICATE_EMAIL} ${RPC_HOST}
-upload/install-nginx-cert.sh ${TLS_CERTIFICATE_EMAIL} ${API_HOST} 1317
+# install certs
+upload/install-certs.sh ${TLS_CERTIFICATE_EMAIL} ${RPC_DOMAIN} ${API_DOMAIN} ${API_PORT}
+
+# configure and start numi.service
 sudo cp upload/numi.service /etc/systemd/system/numi.service
 sudo chmod 664 /etc/systemd/system/numi.service
 sudo systemctl daemon-reload
-
-# start numid service
 sudo systemctl start numi.service
 sleep 1
 sudo systemctl status -l numi.service --no-pager
