@@ -1,0 +1,14 @@
+[Unit]
+Description=start numi blockchain client running as a validator node
+Wants=network.target
+After=syslog.target network-online.target
+
+[Service]
+Type=simple
+ExecStart=sudo -u ubuntu /home/ubuntu/upload/start-numi.sh
+Restart=on-failure
+RestartSec=10
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
