@@ -1,20 +1,20 @@
 version: 1
 accounts:
   - name: alice
-    coins: ["200000000numi"]
+    coins: ["200000000unumi"]
     mnemonic: grant desk armor salmon mixture grid amateur auto timber crowd honey elder scissors radar smile mutual cheap stadium diesel sound design weird brisk join
   - name: bob
-    coins: ["100000000numi"]
+    coins: ["100000000unumi"]
     mnemonic: inject fold fluid champion doctor figure since waste pig similar nation benefit wrong picture during finger sister guilt chat sight avocado lottery risk citizen
   - name: oliver
-    coins: ["100000000numi"]
+    coins: ["100000000unumi"]
     mnemonic: engage unhappy soft business govern transfer spider buzz soda boost robot ugly fix suggest source key sell silk shaft online enforce economy capable news
   - name: olivia
-    coins: ["100000000numi"]
+    coins: ["100000000unumi"]
     mnemonic: cannon problem manual elder shop hero enable walnut exclude hour sand connect tower puppy frown mean ten member grace tower phone shop civil february
 validators:
   - name: alice
-    bonded: "100000000numi"
+    bonded: "100000000unumi"
 client:
   openapi:
     path: "docs/static/openapi.yml"
@@ -24,26 +24,26 @@ client:
     path: "vue/src/store"
 faucet:
   name: bob
-  coins: ["100000numi"]
+  coins: ["100000unumi"]
 genesis:
   app_state:
     crisis:
       constant_fee:
-        denom: "numi"
+        denom: "unumi"
     gov:
       deposit_params:
         min_deposit:
           - amount: "10000000"
-            denom: "numi"
+            denom: "unumi"
       voting_params:
           # for testing only, change this to 7 days in prod
           voting_period: "60s"
     mint:
       params:
-        mint_denom: "numi"
+        mint_denom: "unumi"
     staking:
       params:
-        bond_denom: "numi"
+        bond_denom: "unumi"
     numi:
       params:
         identityVerifiers: "numi1wdnwe6tt2wz3glwe2d0cjmwk8nzvracwp6p8c7,numi13crpqdukn5l3gr4pzzcjzcl6fpx7rhay8uvy44"

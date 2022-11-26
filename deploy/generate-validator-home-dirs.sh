@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
-# set -x
+set -x
 
 SCRIPT_DIR=$(dirname $(readlink -f $0))
 cd ${SCRIPT_DIR}/..
@@ -20,11 +20,11 @@ for i in ${!VALIDATOR_IPS[@]}; do
     MONIKER=validator${i}
     HOME_DIR=deploy/node-config/${MONIKER}
     echo ${VALIDATOR_MNEMONICS[$i]} | numid init --chain-id numi-testnet-1 --recover --home ${HOME_DIR} ${MONIKER}
+    deploy/add-test-keys.sh ${HOME_DIR}
 done
 
-P2P_PERSISTENT_PEERS=$(deploy/persistent-peers.sh "${VALIDATOR_IPS}")
-
 # update config files with external_address, persistent_peers and other values
+P2P_PERSISTENT_PEERS=$(deploy/persistent-peers.sh "${VALIDATOR_IPS}")
 for i in ${!VALIDATOR_IPS[@]}; do
   MONIKER=validator${i}
   HOME_DIR=deploy/node-config/${MONIKER}
@@ -38,6 +38,7 @@ for i in ${!VALIDATOR_IPS[@]}; do
 done
 
 # generate genesis transaction on each validator; for secondary validators, copy genesis transaction to primary validator
+PRIMARY_HOME_DIR=deploy/node-config/validator0
 for i in ${!VALIDATOR_IPS[@]}; do
   MONIKER=validator${i}
   HOME_DIR=deploy/node-config/${MONIKER}
@@ -48,25 +49,18 @@ for i in ${!VALIDATOR_IPS[@]}; do
   numid gentx ${MONIKER}-key 1000000000unumi --chain-id numi-testnet-1 --moniker=${MONIKER} --keyring-backend test --home ${HOME_DIR}
 
   if [[ ${i} != "0" ]]; then
-    cp ${HOME_DIR}/config/gentx/* deploy/node-config/validator0/config/gentx/    
-    numid add-genesis-account --keyring-backend test --home deploy/node-config/validator0 ${ADDR} 2000000000unumi || :
+    cp ${HOME_DIR}/config/gentx/* ${PRIMARY_HOME_DIR}/config/gentx/    
+    numid add-genesis-account --keyring-backend test --home ${PRIMARY_HOME_DIR} ${ADDR} 2000000000unumi || :
   fi
 done
 
-# collect genesis transactions on primary node
-MONIKER=validator0
-HOME_DIR=deploy/node-config/${MONIKER}
-numid collect-gentxs --home ${HOME_DIR}
+# collect genesis transactions on primary validator node
+numid collect-gentxs --home ${PRIMARY_HOME_DIR}
 
-# calculate oracle addresses using menmonics (not safe for prod!)
-ORACLE_MNEMONICS=("engage unhappy soft business govern transfer spider buzz soda boost robot ugly fix suggest source key sell silk shaft online enforce economy capable news" "cannon problem manual elder shop hero enable walnut exclude hour sand connect tower puppy frown mean ten member grace tower phone shop civil february")
-ORACLE_ADDRS=()
-PRIMARY_HOME_DIR=deploy/node-config/validator0
-for i in ${!ORACLE_MNEMONICS[@]}; do 
-  yes | numid keys delete temp-key --keyring-backend test --home ${PRIMARY_HOME_DIR} 2>/dev/null || :
-  echo ${ORACLE_MNEMONICS[$i]} | numid keys add temp-key --keyring-backend test --home ${PRIMARY_HOME_DIR} --recover
-  ORACLE_ADDRS+=($(numid keys show temp-key -a --keyring-backend test --home ${PRIMARY_HOME_DIR}))
-  yes | numid keys delete temp-key --keyring-backend test --home ${PRIMARY_HOME_DIR} 2>/dev/null || :
+# add genesis accounts for test accounts
+for KEY_NAME in oliver olivia alice bob carol; do
+  ADDR=$(numid keys show ${KEY_NAME} -a --keyring-backend test --home ${PRIMARY_HOME_DIR})
+  numid add-genesis-account --keyring-backend test --home ${PRIMARY_HOME_DIR} ${ADDR} 2000000000unumi || :
 done
 
 # update module parameters within genesis file on primary node
@@ -75,7 +69,9 @@ dasel put string -f ${PRIMARY_HOME_DIR}/config/genesis.json -p json ".app_state.
 dasel put string -f ${PRIMARY_HOME_DIR}/config/genesis.json -p json ".app_state.gov.voting_params.voting_period" "60s"
 dasel put string -f ${PRIMARY_HOME_DIR}/config/genesis.json -p json ".app_state.mint.params.mint_denom" "unumi"
 dasel put string -f ${PRIMARY_HOME_DIR}/config/genesis.json -p json ".app_state.staking.params.bond_denom" "unumi"
-dasel put string -f ${PRIMARY_HOME_DIR}/config/genesis.json -p json ".app_state.numi.params.identityVerifiers" "${ORACLE_ADDRS[0]},${ORACLE_ADDRS[1]}"
+ORACLE_OLIVER=$(numid keys show oliver -a --keyring-backend test --home ${PRIMARY_HOME_DIR})
+ORACLE_OLIVIA=$(numid keys show olivia -a --keyring-backend test --home ${PRIMARY_HOME_DIR})
+dasel put string -f ${PRIMARY_HOME_DIR}/config/genesis.json -p json ".app_state.numi.params.identityVerifiers" "${ORACLE_OLIVER},${ORACLE_OLIVIA}"
 
 # copy genesis file from primary node to secondary nodes
 for i in ${!VALIDATOR_IPS[@]}; do
@@ -85,4 +81,3 @@ for i in ${!VALIDATOR_IPS[@]}; do
     cp ${PRIMARY_HOME_DIR}/config/genesis.json ${HOME_DIR}/config/
   fi
 done
-

@@ -19,11 +19,11 @@ for i in ${!SEED_IPS[@]}; do
     MONIKER=seed${i}
     HOME_DIR=deploy/node-config/${MONIKER}
     numid init --chain-id numi-testnet-1 --home ${HOME_DIR} ${MONIKER}
+    deploy/add-test-keys.sh ${HOME_DIR}
 done
 
-P2P_PERSISTENT_PEERS=$(deploy/persistent-peers.sh "${VALIDATOR_IPS}")
-
 # update config files with external_address, persistent_peers and other values
+P2P_PERSISTENT_PEERS=$(deploy/persistent-peers.sh "${VALIDATOR_IPS}")
 for i in ${!SEED_IPS[@]}; do
   MONIKER=seed${i}
   HOME_DIR=deploy/node-config/${MONIKER}
