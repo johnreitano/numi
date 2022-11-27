@@ -9,6 +9,7 @@ import (
 
 func (k msgServer) CreateAndVerifyUser(goCtx context.Context, msg *types.MsgCreateAndVerifyUser) (*types.MsgCreateAndVerifyUserResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	log := k.Keeper.Logger(ctx)
 
 	user := types.User{
 		Creator:           msg.Creator,
@@ -24,18 +25,22 @@ func (k msgServer) CreateAndVerifyUser(goCtx context.Context, msg *types.MsgCrea
 	}
 	err := types.ValidateUserBasic(&user)
 	if err != nil {
+		log.Error("ValidateUserBasic returned error %s", err)
 		return nil, err
 	}
 
 	if !k.IsIdentityVerifier(ctx, user.Creator) {
+		log.Error("%s", types.ErrCreatorNotAuthorizedToVerifyIdentities)
 		return nil, types.ErrCreatorNotAuthorizedToVerifyIdentities
 	}
 
 	if _, found := k.GetUser(ctx, msg.UserId); found {
+		log.Error("%s", types.ErrUserIdAlreadyExists)
 		return nil, types.ErrUserIdAlreadyExists
 	}
 
 	if _, found := k.GetUserAccountAddress(ctx, msg.AccountAddress); found {
+		log.Error("%s", types.ErrAccountAddressAlreadyExists)
 		return nil, types.ErrAccountAddressAlreadyExists
 	}
 
@@ -62,5 +67,6 @@ func (k msgServer) CreateAndVerifyUser(goCtx context.Context, msg *types.MsgCrea
 		),
 	)
 
+	log.Error("successfully created user")
 	return &types.MsgCreateAndVerifyUserResponse{}, nil
 }
