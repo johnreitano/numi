@@ -10,5 +10,5 @@ NODE_ID=$(numid tendermint show-node-id)
 echo "about to start node ${MONIKER} on chain ${CHAIN_ID} with node id ${NODE_ID}"
 pkill numid || :
 sleep 1
-numid start
+numid start --log_level warn
 sleep 1

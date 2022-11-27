@@ -25,22 +25,22 @@ func (k msgServer) CreateAndVerifyUser(goCtx context.Context, msg *types.MsgCrea
 	}
 	err := types.ValidateUserBasic(&user)
 	if err != nil {
-		log.Error("ValidateUserBasic returned error %s", err)
+		log.Info("ValidateUserBasic returned error %s", err.Error())
 		return nil, err
 	}
 
 	if !k.IsIdentityVerifier(ctx, user.Creator) {
-		log.Error("%s", types.ErrCreatorNotAuthorizedToVerifyIdentities)
+		log.Info("Creator is not authorized: %s", types.ErrCreatorNotAuthorizedToVerifyIdentities.Error())
 		return nil, types.ErrCreatorNotAuthorizedToVerifyIdentities
 	}
 
 	if _, found := k.GetUser(ctx, msg.UserId); found {
-		log.Error("%s", types.ErrUserIdAlreadyExists)
+		log.Info("Creator is not authorized: %s", types.ErrUserIdAlreadyExists.Error())
 		return nil, types.ErrUserIdAlreadyExists
 	}
 
 	if _, found := k.GetUserAccountAddress(ctx, msg.AccountAddress); found {
-		log.Error("%s", types.ErrAccountAddressAlreadyExists)
+		log.Info("User already exists: %s", types.ErrAccountAddressAlreadyExists.Error())
 		return nil, types.ErrAccountAddressAlreadyExists
 	}
 
@@ -67,6 +67,6 @@ func (k msgServer) CreateAndVerifyUser(goCtx context.Context, msg *types.MsgCrea
 		),
 	)
 
-	log.Error("successfully created user")
+	log.Info("user successfully created and verified")
 	return &types.MsgCreateAndVerifyUserResponse{}, nil
 }
