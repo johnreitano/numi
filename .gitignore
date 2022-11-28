@@ -7,3 +7,5 @@ release/
 deploy/node-config
 deploy/upload/numi-home
 deploy/upload.tgz
+deploy/download
+

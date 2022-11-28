@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# set -x # echo commands
+set -x # echo commands
 set -e # exit on failure
 
 CHAIN_ID=$(dasel -f ~/.numi/config/client.toml -p toml ".chain-id")
@@ -10,5 +10,6 @@ NODE_ID=$(numid tendermint show-node-id)
 echo "about to start node ${MONIKER} on chain ${CHAIN_ID} with node id ${NODE_ID}"
 pkill numid || :
 sleep 1
+echo about to call numid start
 numid start --log_level warn
 sleep 1
