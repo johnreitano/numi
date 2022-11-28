@@ -14,7 +14,3 @@ make demo
 ```
 
 4. Follow the instructions to paste commands into the left terminal, pressing enter after each command.
-
-
-
-3. 
