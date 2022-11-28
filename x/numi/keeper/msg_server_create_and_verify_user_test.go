@@ -6,9 +6,11 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
 	"github.com/johnreitano/numi/app"
 	keepertest "github.com/johnreitano/numi/testutil/keeper"
+	"github.com/johnreitano/numi/testutil/mock_types"
 	typestest "github.com/johnreitano/numi/testutil/types"
 	"github.com/johnreitano/numi/x/numi"
 	"github.com/johnreitano/numi/x/numi/keeper"
@@ -16,28 +18,46 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupMsgServerCreateAndVerifyUser(t testing.TB) (types.MsgServer, keeper.Keeper, context.Context) {
+func setupMsgServerCreateAndVerifyUserWithMocks(t testing.TB) (types.MsgServer, keeper.Keeper, context.Context) {
+	ctrl := gomock.NewController(t)
+	bankKeeperMock := mock_types.NewMockBankKeeper(ctrl)
+	mintKeeperMock := mock_types.NewMockMintKeeper(ctrl)
+	msgServer, keeper, context := setupMsgServerCreateAndVerifyUser(t, bankKeeperMock, mintKeeperMock)
+	bankKeeperMock.ExpectAny(context)
+	mintKeeperMock.ExpectAny(context)
+	return msgServer, keeper, context
+}
+
+func setupMsgServerCreateAndVerifyUser(t testing.TB, bankKeeper types.BankKeeper, mintKeeper types.MintKeeper) (types.MsgServer, keeper.Keeper, context.Context) {
 	app.SetAddressPrefixesInSDKConfig()
 
-	k, ctx := keepertest.NumiKeeper(t)
-
+	k, ctx := keepertest.NumiKeeper(t, bankKeeper, mintKeeper)
 	numi.InitGenesis(ctx, *k, *types.DefaultGenesis())
 
 	verifiers := fmt.Sprintf("%s,%s", typestest.Oliver, typestest.Olivia)
 	k.SetParams(ctx, types.NewParams(verifiers))
 
-	return keeper.NewMsgServerImpl(*k), *k, sdk.WrapSDKContext(ctx)
+	c := sdk.WrapSDKContext(ctx)
+	return keeper.NewMsgServerImpl(*k), *k, c
 }
 
 func TestCreateAndVerifyUser_ResponseIsAsExpected(t *testing.T) {
-	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t)
+	// TODO: add IntegrationTestSuite as in b9 app and use real BankKeeper and MintKeeper instead of mocks
+
+	ctrl := gomock.NewController(t)
+	bankKeeperMock := mock_types.NewMockBankKeeper(ctrl)
+	mintKeeperMock := mock_types.NewMockMintKeeper(ctrl)
+	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t, bankKeeperMock, mintKeeperMock)
+	bankKeeperMock.ExpectAny(context)
+	mintKeeperMock.ExpectAny(context)
+
 	createResponse, err := msgServer.CreateAndVerifyUser(context, typestest.ValidMsgCreateAndVerifyUser())
 	require.Nil(t, err)
 	require.EqualValues(t, types.MsgCreateAndVerifyUserResponse{}, *createResponse)
 }
 
 func TestCreateAndVerifyUser_UserIsSaved(t *testing.T) {
-	msgServer, keeper, context := setupMsgServerCreateAndVerifyUser(t)
+	msgServer, keeper, context := setupMsgServerCreateAndVerifyUserWithMocks(t)
 
 	message := typestest.ValidMsgCreateAndVerifyUser()
 	_, err := msgServer.CreateAndVerifyUser(context, message)
@@ -51,7 +71,7 @@ func TestCreateAndVerifyUser_UserIsSaved(t *testing.T) {
 }
 
 func TestCreateAndVerifyUser_FailsIfValidateBasicFailsForUser(t *testing.T) {
-	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t)
+	msgServer, _, context := setupMsgServerCreateAndVerifyUserWithMocks(t)
 	message := typestest.ValidMsgCreateAndVerifyUser()
 	message.FirstName = ""
 	_, err := msgServer.CreateAndVerifyUser(context, message)
@@ -60,7 +80,7 @@ func TestCreateAndVerifyUser_FailsIfValidateBasicFailsForUser(t *testing.T) {
 }
 
 func TestCreateAndVerifyUser_FailsIfCreatorNotIdentityProvider(t *testing.T) {
-	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t)
+	msgServer, _, context := setupMsgServerCreateAndVerifyUserWithMocks(t)
 
 	message := typestest.ValidMsgCreateAndVerifyUser()
 	message.Creator = typestest.Alice
@@ -69,7 +89,7 @@ func TestCreateAndVerifyUser_FailsIfCreatorNotIdentityProvider(t *testing.T) {
 }
 
 func TestCreateAndVerifyUser_FailsIfUserIdAlreadyInUse(t *testing.T) {
-	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t)
+	msgServer, _, context := setupMsgServerCreateAndVerifyUserWithMocks(t)
 
 	message := typestest.ValidMsgCreateAndVerifyUser()
 	_, err := msgServer.CreateAndVerifyUser(context, message)
@@ -81,7 +101,7 @@ func TestCreateAndVerifyUser_FailsIfUserIdAlreadyInUse(t *testing.T) {
 }
 
 func TestCreateAndVerifyUser_FailsIfAccountAddressAlreadyInUse(t *testing.T) {
-	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t)
+	msgServer, _, context := setupMsgServerCreateAndVerifyUserWithMocks(t)
 
 	message := typestest.ValidMsgCreateAndVerifyUser()
 	_, err := msgServer.CreateAndVerifyUser(context, message)
@@ -95,7 +115,7 @@ func TestCreateAndVerifyUser_FailsIfAccountAddressAlreadyInUse(t *testing.T) {
 }
 
 func TestCreate1GameEmitted(t *testing.T) {
-	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t)
+	msgServer, _, context := setupMsgServerCreateAndVerifyUserWithMocks(t)
 	ctx := sdk.UnwrapSDKContext(context)
 	message := typestest.ValidMsgCreateAndVerifyUser()
 	_, err := msgServer.CreateAndVerifyUser(context, message)

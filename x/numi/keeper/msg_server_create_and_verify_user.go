@@ -7,6 +7,8 @@ import (
 	"github.com/johnreitano/numi/x/numi/types"
 )
 
+const verificationRewardAmount = int64(10)
+
 func (k msgServer) CreateAndVerifyUser(goCtx context.Context, msg *types.MsgCreateAndVerifyUser) (*types.MsgCreateAndVerifyUserResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	log := k.Keeper.Logger(ctx)
@@ -50,6 +52,8 @@ func (k msgServer) CreateAndVerifyUser(goCtx context.Context, msg *types.MsgCrea
 		UserId:         msg.UserId,
 	})
 
+	k.grantVerificationReward(ctx, msg.Creator)
+
 	// TODO: add msg to upcoming auctions
 
 	ctx.EventManager().EmitEvent(
@@ -69,4 +73,35 @@ func (k msgServer) CreateAndVerifyUser(goCtx context.Context, msg *types.MsgCrea
 
 	log.Info("user successfully created and verified")
 	return &types.MsgCreateAndVerifyUserResponse{}, nil
+}
+
+func (k msgServer) grantVerificationReward(ctx sdk.Context, verifier string) error {
+	r := k.verificationReward(ctx)
+	return k.mintTo(ctx, r, verifier)
+}
+
+func (k msgServer) verificationReward(ctx sdk.Context) sdk.Coin {
+	p := k.mintKeeper.GetParams(ctx)
+	return sdk.Coin{
+		Denom:  p.MintDenom,
+		Amount: sdk.NewInt(verificationRewardAmount),
+	}
+}
+
+func (k msgServer) mintTo(ctx sdk.Context, amount sdk.Coin, mintTo string) error {
+	if err := k.Keeper.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(amount)); err != nil {
+		return err
+	}
+
+	addr, err := sdk.AccAddressFromBech32(mintTo)
+	if err != nil {
+		return err
+	}
+
+	return k.bankKeeper.SendCoinsFromModuleToAccount(
+		ctx,
+		types.ModuleName,
+		addr,
+		sdk.NewCoins(amount),
+	)
 }

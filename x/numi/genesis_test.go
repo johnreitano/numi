@@ -33,7 +33,7 @@ func TestGenesis(t *testing.T) {
 		// this line is used by starport scaffolding # genesis/test/state
 	}
 
-	k, ctx := keepertest.NumiKeeper(t)
+	k, ctx := keepertest.NumiKeeperWithMocks(t)
 	numi.InitGenesis(ctx, *k, genesisState)
 	got := numi.ExportGenesis(ctx, *k)
 	require.NotNil(t, got)

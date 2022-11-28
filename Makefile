@@ -18,3 +18,6 @@ e2e-test:
 
 demo:
 	@deploy/demo.sh
+
+mock-expected-keepers:
+	mockgen -source=x/numi/types/expected_keepers.go -destination=testutil/mock_types/expected_keepers.go 

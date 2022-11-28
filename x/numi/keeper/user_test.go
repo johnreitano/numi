@@ -28,7 +28,7 @@ func createNUser(keeper *keeper.Keeper, ctx sdk.Context, n int) []types.User {
 }
 
 func TestUserGet(t *testing.T) {
-	keeper, ctx := keepertest.NumiKeeper(t)
+	keeper, ctx := keepertest.NumiKeeperWithMocks(t)
 	items := createNUser(keeper, ctx, 10)
 	for _, item := range items {
 		rst, found := keeper.GetUser(ctx,
@@ -42,7 +42,7 @@ func TestUserGet(t *testing.T) {
 	}
 }
 func TestUserRemove(t *testing.T) {
-	keeper, ctx := keepertest.NumiKeeper(t)
+	keeper, ctx := keepertest.NumiKeeperWithMocks(t)
 	items := createNUser(keeper, ctx, 10)
 	for _, item := range items {
 		keeper.RemoveUser(ctx,
@@ -56,7 +56,7 @@ func TestUserRemove(t *testing.T) {
 }
 
 func TestUserGetAll(t *testing.T) {
-	keeper, ctx := keepertest.NumiKeeper(t)
+	keeper, ctx := keepertest.NumiKeeperWithMocks(t)
 	items := createNUser(keeper, ctx, 10)
 	require.ElementsMatch(t,
 		nullify.Fill(items),

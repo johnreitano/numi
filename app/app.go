@@ -180,6 +180,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		numimoduletypes.ModuleName:     {authtypes.Minter},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 )
@@ -368,7 +369,6 @@ func New(
 		app.BankKeeper,
 		authtypes.FeeCollectorName,
 	)
-
 	app.DistrKeeper = distrkeeper.NewKeeper(
 		appCodec,
 		keys[distrtypes.StoreKey],
@@ -504,6 +504,8 @@ func New(
 	)
 
 	app.NumiKeeper = *numimodulekeeper.NewKeeper(
+		app.BankKeeper,
+		app.MintKeeper,
 		appCodec,
 		keys[numimoduletypes.StoreKey],
 		keys[numimoduletypes.MemStoreKey],

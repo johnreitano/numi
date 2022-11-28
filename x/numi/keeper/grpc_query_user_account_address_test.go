@@ -19,7 +19,7 @@ import (
 var _ = strconv.IntSize
 
 func TestUserAccountAddressQuerySingle(t *testing.T) {
-	keeper, ctx := keepertest.NumiKeeper(t)
+	keeper, ctx := keepertest.NumiKeeperWithMocks(t)
 	wctx := sdk.WrapSDKContext(ctx)
 	msgs := createNUserAccountAddress(keeper, ctx, 2)
 	for _, tc := range []struct {
@@ -70,7 +70,7 @@ func TestUserAccountAddressQuerySingle(t *testing.T) {
 }
 
 func TestUserAccountAddressQueryPaginated(t *testing.T) {
-	keeper, ctx := keepertest.NumiKeeper(t)
+	keeper, ctx := keepertest.NumiKeeperWithMocks(t)
 	wctx := sdk.WrapSDKContext(ctx)
 	msgs := createNUserAccountAddress(keeper, ctx, 5)
 

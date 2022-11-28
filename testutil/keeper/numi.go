@@ -9,6 +9,8 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	typesparams "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/golang/mock/gomock"
+	"github.com/johnreitano/numi/testutil/mock_types"
 	"github.com/johnreitano/numi/x/numi/keeper"
 	"github.com/johnreitano/numi/x/numi/types"
 	"github.com/stretchr/testify/require"
@@ -17,7 +19,18 @@ import (
 	tmdb "github.com/tendermint/tm-db"
 )
 
-func NumiKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
+func NumiKeeperWithMocks(t testing.TB) (*keeper.Keeper, sdk.Context) {
+	ctrl := gomock.NewController(t)
+	bankKeeperMock := mock_types.NewMockBankKeeper(ctrl)
+	mintKeeperMock := mock_types.NewMockMintKeeper(ctrl)
+	k, ctx := NumiKeeper(t, bankKeeperMock, mintKeeperMock)
+	c := sdk.WrapSDKContext(ctx)
+	bankKeeperMock.ExpectAny(c)
+	mintKeeperMock.ExpectAny(c)
+	return k, ctx
+}
+
+func NumiKeeper(t testing.TB, bankKeeper types.BankKeeper, mintKeeper types.MintKeeper) (*keeper.Keeper, sdk.Context) {
 	storeKey := sdk.NewKVStoreKey(types.StoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
@@ -37,6 +50,8 @@ func NumiKeeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
 		"NumiParams",
 	)
 	k := keeper.NewKeeper(
+		bankKeeper,
+		mintKeeper,
 		cdc,
 		storeKey,
 		memStoreKey,

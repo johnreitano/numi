@@ -26,7 +26,7 @@ func createNUserAccountAddress(keeper *keeper.Keeper, ctx sdk.Context, n int) []
 }
 
 func TestUserAccountAddressGet(t *testing.T) {
-	keeper, ctx := keepertest.NumiKeeper(t)
+	keeper, ctx := keepertest.NumiKeeperWithMocks(t)
 	items := createNUserAccountAddress(keeper, ctx, 10)
 	for _, item := range items {
 		rst, found := keeper.GetUserAccountAddress(ctx,
@@ -40,7 +40,7 @@ func TestUserAccountAddressGet(t *testing.T) {
 	}
 }
 func TestUserAccountAddressRemove(t *testing.T) {
-	keeper, ctx := keepertest.NumiKeeper(t)
+	keeper, ctx := keepertest.NumiKeeperWithMocks(t)
 	items := createNUserAccountAddress(keeper, ctx, 10)
 	for _, item := range items {
 		keeper.RemoveUserAccountAddress(ctx,
@@ -54,7 +54,7 @@ func TestUserAccountAddressRemove(t *testing.T) {
 }
 
 func TestUserAccountAddressGetAll(t *testing.T) {
-	keeper, ctx := keepertest.NumiKeeper(t)
+	keeper, ctx := keepertest.NumiKeeperWithMocks(t)
 	items := createNUserAccountAddress(keeper, ctx, 10)
 	require.ElementsMatch(t,
 		nullify.Fill(items),

@@ -19,7 +19,7 @@ import (
 var _ = strconv.IntSize
 
 func TestUserQuerySingle(t *testing.T) {
-	keeper, ctx := keepertest.NumiKeeper(t)
+	keeper, ctx := keepertest.NumiKeeperWithMocks(t)
 	wctx := sdk.WrapSDKContext(ctx)
 	msgs := createNUser(keeper, ctx, 2)
 	for _, tc := range []struct {
@@ -70,7 +70,7 @@ func TestUserQuerySingle(t *testing.T) {
 }
 
 func TestUserQueryPaginated(t *testing.T) {
-	keeper, ctx := keepertest.NumiKeeper(t)
+	keeper, ctx := keepertest.NumiKeeperWithMocks(t)
 	wctx := sdk.WrapSDKContext(ctx)
 	msgs := createNUser(keeper, ctx, 5)
 
