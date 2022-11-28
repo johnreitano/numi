@@ -13,4 +13,4 @@ cd numi
 make demo
 ```
 
-4. Follow the instructions to paste commands into the left terminal, pressing enter after each command.
+4. Follow the instructions to paste additional commands into the right terminal, pressing enter after each command.
