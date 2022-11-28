@@ -6,17 +6,61 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
 	"github.com/johnreitano/numi/app"
 	keepertest "github.com/johnreitano/numi/testutil/keeper"
 	"github.com/johnreitano/numi/testutil/mock_types"
 	typestest "github.com/johnreitano/numi/testutil/types"
+
 	"github.com/johnreitano/numi/x/numi"
 	"github.com/johnreitano/numi/x/numi/keeper"
 	"github.com/johnreitano/numi/x/numi/types"
 	"github.com/stretchr/testify/require"
 )
+
+type coinMatcher struct {
+	sdk.Coin
+}
+
+func (m coinMatcher) Matches(x interface{}) bool {
+	arg, ok := x.(sdk.Coins)
+	if !ok {
+		return false
+	}
+	return arg[0].Denom == m.Denom && arg[0].Amount.Equal(m.Amount)
+}
+
+func (m coinMatcher) String() string {
+	return fmt.Sprintf("matches demon %s and amount %d", m.Denom, m.Amount)
+}
+
+func FirstCoinMatches(coin sdk.Coin) gomock.Matcher {
+	return coinMatcher{coin}
+}
+
+type addressMatcher string
+
+func (m addressMatcher) Matches(x interface{}) bool {
+	arg, ok := x.(sdk.AccAddress)
+	if !ok {
+		return false
+	}
+
+	expectedAddress := string(m)
+	actualAddress := arg.String()
+
+	return expectedAddress == actualAddress
+}
+
+func (m addressMatcher) String() string {
+	return fmt.Sprintf("matches address %s", string(m))
+}
+
+func AddressMatches(expectedRecipient string) gomock.Matcher {
+	return addressMatcher(expectedRecipient)
+}
 
 func setupMsgServerCreateAndVerifyUserWithMocks(t testing.TB) (types.MsgServer, keeper.Keeper, context.Context) {
 	ctrl := gomock.NewController(t)
@@ -41,17 +85,18 @@ func setupMsgServerCreateAndVerifyUser(t testing.TB, bankKeeper types.BankKeeper
 	return keeper.NewMsgServerImpl(*k), *k, c
 }
 
-func TestCreateAndVerifyUser_ResponseIsAsExpected(t *testing.T) {
-	// TODO: add IntegrationTestSuite as in b9 app and use real BankKeeper and MintKeeper instead of mocks
+// TODO: if appropriate for additional tests, add IntegrationTestSuite as in b9 app and use real BankKeeper and MintKeeper instead of mocks
 
+func TestCreateAndVerifyUser_ResponseIsAsExpected(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	bankKeeperMock := mock_types.NewMockBankKeeper(ctrl)
 	mintKeeperMock := mock_types.NewMockMintKeeper(ctrl)
 	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t, bankKeeperMock, mintKeeperMock)
+
 	bankKeeperMock.ExpectAny(context)
 	mintKeeperMock.ExpectAny(context)
-
-	createResponse, err := msgServer.CreateAndVerifyUser(context, typestest.ValidMsgCreateAndVerifyUser())
+	msg := typestest.ValidMsgCreateAndVerifyUser()
+	createResponse, err := msgServer.CreateAndVerifyUser(context, msg)
 	require.Nil(t, err)
 	require.EqualValues(t, types.MsgCreateAndVerifyUserResponse{}, *createResponse)
 }
@@ -68,6 +113,25 @@ func TestCreateAndVerifyUser_UserIsSaved(t *testing.T) {
 	actualUser, found := keeper.GetUser(sdk.UnwrapSDKContext(context), message.UserId)
 	require.True(t, found)
 	require.EqualValues(t, actualUser, expectedUser)
+}
+
+func TestCreateAndVerifyUser_MintsAndTransfersRewardToCreator(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	bankKeeperMock := mock_types.NewMockBankKeeper(ctrl)
+	mintKeeperMock := mock_types.NewMockMintKeeper(ctrl)
+	msgServer, _, context := setupMsgServerCreateAndVerifyUser(t, bankKeeperMock, mintKeeperMock)
+
+	mintKeeperMock.EXPECT().GetParams(sdk.UnwrapSDKContext(context)).Return(minttypes.Params{MintDenom: "unumi"}).AnyTimes()
+
+	msg := typestest.ValidMsgCreateAndVerifyUser()
+
+	expectedReward := sdk.Coin{Denom: "unumi", Amount: sdk.NewInt(10)}
+	bankKeeperMock.EXPECT().MintCoins(sdk.UnwrapSDKContext(context), "numi", FirstCoinMatches(expectedReward)).Times(1)
+
+	bankKeeperMock.EXPECT().SendCoinsFromModuleToAccount(sdk.UnwrapSDKContext(context), "numi", AddressMatches(msg.Creator), FirstCoinMatches(expectedReward)).Times(1)
+
+	_, err := msgServer.CreateAndVerifyUser(context, msg)
+	require.Nil(t, err)
 }
 
 func TestCreateAndVerifyUser_Create1GameEmitted(t *testing.T) {

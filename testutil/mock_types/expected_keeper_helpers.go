@@ -15,5 +15,5 @@ func (bankKeeper *MockBankKeeper) ExpectAny(context context.Context) {
 }
 
 func (mintKeeper *MockMintKeeper) ExpectAny(context context.Context) {
-	mintKeeper.EXPECT().GetParams(sdk.UnwrapSDKContext(context)).Return(minttypes.Params{MintDenom: "uatom"}).AnyTimes()
+	mintKeeper.EXPECT().GetParams(sdk.UnwrapSDKContext(context)).Return(minttypes.Params{MintDenom: "unumi"}).AnyTimes()
 }
