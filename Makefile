@@ -17,4 +17,4 @@ e2e-test:
 	deploy/e2e-test.sh
 
 demo:
-	deploy/demo.sh
+	@deploy/demo.sh
