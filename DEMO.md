@@ -2,7 +2,7 @@
 
 1. Open a terminal window: Type: Cmd-Space Terminal\<enter\>
 
-2. Open a second terminal window to the right: Type Cmd-N
+2. Open a second terminal window to the right of the first: Type Cmd-N
 
 3. Arrange the terminal windows so you can see both of them.
 
