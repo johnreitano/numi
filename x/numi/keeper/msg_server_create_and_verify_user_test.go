@@ -70,6 +70,32 @@ func TestCreateAndVerifyUser_UserIsSaved(t *testing.T) {
 	require.EqualValues(t, actualUser, expectedUser)
 }
 
+func TestCreateAndVerifyUser_Create1GameEmitted(t *testing.T) {
+	msgServer, _, context := setupMsgServerCreateAndVerifyUserWithMocks(t)
+	ctx := sdk.UnwrapSDKContext(context)
+	message := typestest.ValidMsgCreateAndVerifyUser()
+	_, err := msgServer.CreateAndVerifyUser(context, message)
+	require.Nil(t, err)
+	events := sdk.StringifyEvents(ctx.EventManager().ABCIEvents())
+	require.Len(t, events, 1)
+	event := events[0]
+	require.EqualValues(t, sdk.StringEvent{
+		Type: "user-created-and-verified",
+		Attributes: []sdk.Attribute{
+			{Key: "user-id", Value: message.UserId},
+			{Key: "first-name", Value: message.FirstName},
+			{Key: "last-name", Value: message.LastName},
+			{Key: "country-code", Value: message.CountryCode},
+			{Key: "subnational-entity", Value: message.SubnationalEntity},
+			{Key: "city", Value: message.City},
+			{Key: "bio", Value: message.Bio},
+			{Key: "creator", Value: message.Creator},
+			{Key: "referrer", Value: message.Referrer},
+			{Key: "account-address", Value: message.AccountAddress},
+		},
+	}, event)
+}
+
 func TestCreateAndVerifyUser_FailsIfValidateBasicFailsForUser(t *testing.T) {
 	msgServer, _, context := setupMsgServerCreateAndVerifyUserWithMocks(t)
 	message := typestest.ValidMsgCreateAndVerifyUser()
@@ -112,30 +138,4 @@ func TestCreateAndVerifyUser_FailsIfAccountAddressAlreadyInUse(t *testing.T) {
 	message.UserId = newUserId
 	_, err = msgServer.CreateAndVerifyUser(context, message)
 	require.ErrorIs(t, err, types.ErrAccountAddressAlreadyExists)
-}
-
-func TestCreate1GameEmitted(t *testing.T) {
-	msgServer, _, context := setupMsgServerCreateAndVerifyUserWithMocks(t)
-	ctx := sdk.UnwrapSDKContext(context)
-	message := typestest.ValidMsgCreateAndVerifyUser()
-	_, err := msgServer.CreateAndVerifyUser(context, message)
-	require.Nil(t, err)
-	events := sdk.StringifyEvents(ctx.EventManager().ABCIEvents())
-	require.Len(t, events, 1)
-	event := events[0]
-	require.EqualValues(t, sdk.StringEvent{
-		Type: "user-created-and-verified",
-		Attributes: []sdk.Attribute{
-			{Key: "user-id", Value: message.UserId},
-			{Key: "first-name", Value: message.FirstName},
-			{Key: "last-name", Value: message.LastName},
-			{Key: "country-code", Value: message.CountryCode},
-			{Key: "subnational-entity", Value: message.SubnationalEntity},
-			{Key: "city", Value: message.City},
-			{Key: "bio", Value: message.Bio},
-			{Key: "creator", Value: message.Creator},
-			{Key: "referrer", Value: message.Referrer},
-			{Key: "account-address", Value: message.AccountAddress},
-		},
-	}, event)
 }
